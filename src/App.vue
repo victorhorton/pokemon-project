@@ -42,6 +42,12 @@ function searchPokemon() {
         </h1>
       </div>
     </div>
+    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.doubleDamageFrom }}</div>
+    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.doubleDamageTo }}</div>
+    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.halfDamageFrom }}</div>
+    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.halfDamageTo }}</div>
+    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.noDamageFrom }}</div>
+    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.noDamageTo }}</div>
   </div>
   <datalist id="pokemon-datalist">
     <option
