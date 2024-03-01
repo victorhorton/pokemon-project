@@ -1,11 +1,17 @@
-import { ref, computed } from 'vue'
+import { ref, computed, type Ref, type ComputedRef } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import {
+  type PokemonTypeStat,
+  type SimplePokemon,
+  type SimplePokemonTypes
+} from '@/types/dataTypes'
+import type { Pokemon } from 'pokenode-ts'
 
 export const usePokemonStore = defineStore('pokemon', () => {
-  const allPokemon = ref()
-  const allPokemonTypes = ref(new Array<any>())
-  const currentPokemon = ref()
+  const allPokemon = ref(new Array<SimplePokemon>())
+  const allPokemonTypes = ref(new Array<SimplePokemonTypes>())
+  const currentPokemon: Ref<Pokemon | undefined> = ref()
   const currentPokemonDamageRelation = ref({
     doubleDamageFrom: new Array<string>(),
     doubleDamageTo: new Array<string>(),
@@ -15,7 +21,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
     noDamageTo: new Array<string>()
   })
 
-  function searchPokemon(pokemonName: string) {
+  function searchPokemon(pokemonName: string): void {
     $reset()
     axios
       .get(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`)
@@ -23,47 +29,49 @@ export const usePokemonStore = defineStore('pokemon', () => {
         currentPokemon.value = response.data
       })
       .finally(() => {
-        currentPokemon.value.types.forEach((pokemonType: { type: { url: string } }) => {
-          axios.get(pokemonType.type.url).then((response) => {
-            const doubleDamageFromTypes = response.data.damage_relations.double_damage_from.map(
-              (pokemoneType: { name: string }) => {
-                return pokemoneType.name
-              }
-            )
-            const doubleDamageToTypes = response.data.damage_relations.double_damage_to.map(
-              (pokemoneType: { name: string }) => {
-                return pokemoneType.name
-              }
-            )
-            const halfDamageFromTypes = response.data.damage_relations.half_damage_from.map(
-              (pokemoneType: { name: string }) => {
-                return pokemoneType.name
-              }
-            )
-            const halfDamageToTypes = response.data.damage_relations.half_damage_to.map(
-              (pokemoneType: { name: string }) => {
-                return pokemoneType.name
-              }
-            )
-            const noDamageFromTypes = response.data.damage_relations.no_damage_from.map(
-              (pokemoneType: { name: string }) => {
-                return pokemoneType.name
-              }
-            )
-            const noDamageToTypes = response.data.damage_relations.no_damage_to.map(
-              (pokemoneType: { name: string }) => {
-                return pokemoneType.name
-              }
-            )
+        if (currentPokemon.value) {
+          currentPokemon.value.types.forEach((pokemonType: { type: { url: string } }) => {
+            axios.get(pokemonType.type.url).then((response) => {
+              const doubleDamageFromTypes = response.data.damage_relations.double_damage_from.map(
+                (pokemoneType: { name: string }) => {
+                  return pokemoneType.name
+                }
+              )
+              const doubleDamageToTypes = response.data.damage_relations.double_damage_to.map(
+                (pokemoneType: { name: string }) => {
+                  return pokemoneType.name
+                }
+              )
+              const halfDamageFromTypes = response.data.damage_relations.half_damage_from.map(
+                (pokemoneType: { name: string }) => {
+                  return pokemoneType.name
+                }
+              )
+              const halfDamageToTypes = response.data.damage_relations.half_damage_to.map(
+                (pokemoneType: { name: string }) => {
+                  return pokemoneType.name
+                }
+              )
+              const noDamageFromTypes = response.data.damage_relations.no_damage_from.map(
+                (pokemoneType: { name: string }) => {
+                  return pokemoneType.name
+                }
+              )
+              const noDamageToTypes = response.data.damage_relations.no_damage_to.map(
+                (pokemoneType: { name: string }) => {
+                  return pokemoneType.name
+                }
+              )
 
-            currentPokemonDamageRelation.value.doubleDamageFrom.push(...doubleDamageFromTypes)
-            currentPokemonDamageRelation.value.doubleDamageTo.push(...doubleDamageToTypes)
-            currentPokemonDamageRelation.value.halfDamageFrom.push(...halfDamageFromTypes)
-            currentPokemonDamageRelation.value.halfDamageTo.push(...halfDamageToTypes)
-            currentPokemonDamageRelation.value.noDamageFrom.push(...noDamageFromTypes)
-            currentPokemonDamageRelation.value.noDamageTo.push(...noDamageToTypes)
+              currentPokemonDamageRelation.value.doubleDamageFrom.push(...doubleDamageFromTypes)
+              currentPokemonDamageRelation.value.doubleDamageTo.push(...doubleDamageToTypes)
+              currentPokemonDamageRelation.value.halfDamageFrom.push(...halfDamageFromTypes)
+              currentPokemonDamageRelation.value.halfDamageTo.push(...halfDamageToTypes)
+              currentPokemonDamageRelation.value.noDamageFrom.push(...noDamageFromTypes)
+              currentPokemonDamageRelation.value.noDamageTo.push(...noDamageToTypes)
+            })
           })
-        })
+        }
       })
   }
 
@@ -91,13 +99,13 @@ export const usePokemonStore = defineStore('pokemon', () => {
     currentPokemonDamageRelation.value.noDamageTo = []
   }
 
-  const sortedPokemon = computed(() => {
+  const sortedPokemon: ComputedRef<SimplePokemon[]> = computed(() => {
     return [...allPokemon.value].sort((a, b) => {
       return a.name.localeCompare(b.name)
     })
   })
 
-  const currentTypesStats = computed(() => {
+  const currentTypesStats: ComputedRef<PokemonTypeStat[]> = computed(() => {
     return allPokemonTypes.value
       .map((pokemonType: { name: string }) => {
         let stat = 0

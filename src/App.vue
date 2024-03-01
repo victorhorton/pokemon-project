@@ -33,7 +33,7 @@ function searchPokemon() {
       </div>
     </div>
     <div v-if="pokemonStore.currentPokemon" class="row align-items-center">
-      <div class="col-3 col-md-2">
+      <div v-if="pokemonStore.currentPokemon.sprites.front_default" class="col-3 col-md-2">
         <img :src="pokemonStore.currentPokemon.sprites.front_default" />
       </div>
       <div class="col">
