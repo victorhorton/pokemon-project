@@ -4,6 +4,7 @@ import axios from 'axios'
 
 export const usePokemonStore = defineStore('pokemon', () => {
   const allPokemon = ref()
+  const allPokemonTypes = ref(new Array<any>())
   const currentPokemon = ref()
   const currentPokemonDamageRelation = ref({
     doubleDamageFrom: new Array<string>(),
@@ -15,6 +16,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
   })
 
   function searchPokemon(pokemonName: string) {
+    $reset()
     axios
       .get(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`)
       .then((response) => {
@@ -65,14 +67,86 @@ export const usePokemonStore = defineStore('pokemon', () => {
       })
   }
 
+  function progressBarStyle(stat: number): string {
+    const maxStat = Math.max(
+      ...currentTypesStats.value.map((currentTypeStat) => currentTypeStat.stat)
+    )
+    const minStat = Math.min(
+      ...currentTypesStats.value.map((currentTypeStat) => currentTypeStat.stat)
+    )
+    const statAsPercent = (stat / (maxStat - minStat)) * 100
+    const margin = statAsPercent < 0 ? 50 - Math.abs(statAsPercent) : 50
+    const dangerColor = statAsPercent < 0 ? ' background-color: #dc3545;' : ''
+
+    return `width: ${Math.abs(statAsPercent)}%; margin-left: ${margin}%;${dangerColor}`
+  }
+
+  function $reset() {
+    currentPokemon.value = undefined
+    currentPokemonDamageRelation.value.doubleDamageFrom = []
+    currentPokemonDamageRelation.value.doubleDamageTo = []
+    currentPokemonDamageRelation.value.halfDamageFrom = []
+    currentPokemonDamageRelation.value.halfDamageTo = []
+    currentPokemonDamageRelation.value.noDamageFrom = []
+    currentPokemonDamageRelation.value.noDamageTo = []
+  }
+
   const sortedPokemon = computed(() => {
     return [...allPokemon.value].sort((a, b) => {
       return a.name.localeCompare(b.name)
     })
   })
 
+  const currentTypesStats = computed(() => {
+    return allPokemonTypes.value
+      .map((pokemonType: { name: string }) => {
+        let stat = 0
+
+        currentPokemonDamageRelation.value.doubleDamageFrom.forEach((damageRelation) => {
+          if (damageRelation === pokemonType.name) {
+            stat -= 2
+          }
+        })
+        currentPokemonDamageRelation.value.doubleDamageTo.forEach((damageRelation) => {
+          if (damageRelation === pokemonType.name) {
+            stat += 2
+          }
+        })
+        currentPokemonDamageRelation.value.halfDamageFrom.forEach((damageRelation) => {
+          if (damageRelation === pokemonType.name) {
+            stat += 1.5
+          }
+        })
+        currentPokemonDamageRelation.value.halfDamageTo.forEach((damageRelation) => {
+          if (damageRelation === pokemonType.name) {
+            stat -= 1.5
+          }
+        })
+        currentPokemonDamageRelation.value.noDamageFrom.forEach((damageRelation) => {
+          if (damageRelation === pokemonType.name) {
+            stat += 3
+          }
+        })
+        currentPokemonDamageRelation.value.noDamageTo.forEach((damageRelation) => {
+          if (damageRelation === pokemonType.name) {
+            stat -= 3
+          }
+        })
+
+        return {
+          name: pokemonType.name,
+          stat
+        }
+      })
+      .sort((a, b) => b.stat - a.stat)
+  })
+
   axios.get('https://pokeapi.co/api/v2/pokemon/?limit=1025').then((response) => {
     allPokemon.value = response.data.results
+  })
+
+  axios.get('https://pokeapi.co/api/v2/type/').then((response) => {
+    allPokemonTypes.value = response.data.results
   })
 
   return {
@@ -80,6 +154,8 @@ export const usePokemonStore = defineStore('pokemon', () => {
     sortedPokemon,
     currentPokemon,
     currentPokemonDamageRelation,
+    currentTypesStats,
+    progressBarStyle,
     searchPokemon
   }
 })

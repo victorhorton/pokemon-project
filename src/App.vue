@@ -12,7 +12,7 @@ function searchPokemon() {
 
 <template>
   <div class="container">
-    <div class="row">
+    <div class="row my-3">
       <div class="col">
         <form @submit.prevent="searchPokemon()">
           <div class="input-group my-3">
@@ -33,21 +33,37 @@ function searchPokemon() {
       </div>
     </div>
     <div v-if="pokemonStore.currentPokemon" class="row align-items-center">
-      <div class="col">
+      <div class="col-3 col-md-2">
         <img :src="pokemonStore.currentPokemon.sprites.front_default" />
       </div>
       <div class="col">
-        <h1>
+        <h1 class="text-capitalize text-center">
           {{ pokemonStore.currentPokemon.name }}
         </h1>
       </div>
     </div>
-    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.doubleDamageFrom }}</div>
-    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.doubleDamageTo }}</div>
-    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.halfDamageFrom }}</div>
-    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.halfDamageTo }}</div>
-    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.noDamageFrom }}</div>
-    <div class="row">{{ pokemonStore.currentPokemonDamageRelation.noDamageTo }}</div>
+    <div class="row my-3">
+      <div class="col">
+        <div class="row" v-for="typeStat in pokemonStore.currentTypesStats" :key="typeStat.name">
+          <div class="col-3 col-md-2 text-capitalize">{{ typeStat.name }}</div>
+          <div class="col">
+            <div
+              class="progress"
+              role="progressbar"
+              aria-label="Basic example"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              <div class="progress-bar" :style="pokemonStore.progressBarStyle(typeStat.stat)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col offset-3 offset-md-2 text-end">Weaker Against</div>
+          <div class="col">Stronger Against</div>
+        </div>
+      </div>
+    </div>
   </div>
   <datalist id="pokemon-datalist">
     <option
