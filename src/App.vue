@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { usePokemonStore } from './stores/pokemon'
+
 const pokemonSearch = ref('')
 const pokemonStore = usePokemonStore()
 
 function searchPokemon() {
-  pokemonStore.searchPokemon(pokemonSearch.value)
+  pokemonStore.searchPokemon(pokemonSearch.value.toLocaleLowerCase())
   pokemonSearch.value = ''
 }
 </script>
@@ -45,7 +46,9 @@ function searchPokemon() {
     <div class="row my-3">
       <div class="col">
         <div class="row" v-for="typeStat in pokemonStore.currentTypesStats" :key="typeStat.name">
-          <div class="col-3 col-md-2 text-capitalize">{{ typeStat.name }}</div>
+          <div class="col-3 col-md-2">
+            <h5 class="text-capitalize mb-1">{{ typeStat.name }}</h5>
+          </div>
           <div class="col">
             <div
               class="progress"
