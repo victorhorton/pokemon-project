@@ -1,6 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { usePokemonStore } from './stores/pokemon'
+
+onMounted(() => {
+  if (window.matchMedia) {
+    document.documentElement.setAttribute(
+      'data-bs-theme',
+      window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    )
+  }
+})
 
 const pokemonSearch = ref('')
 const pokemonStore = usePokemonStore()
